@@ -92,7 +92,7 @@ lockdown offer.
 4. `chmod 600 ~/.claude/channels/bluebubbles/.env` — credentials are secrets.
 5. Verify connectivity: `curl -s "<url>/api/v1/ping?password=<password>"`
 6. If ping succeeds, auto-register the webhook URL with BlueBubbles:
-   `curl -s -X PUT "<url>/api/v1/server/webhook?password=<password>" -H "Content-Type: application/json" -d '{"url":"http://127.0.0.1:18333"}'`
+   `curl -s -X POST "<url>/api/v1/webhook?password=<password>" -H "Content-Type: application/json" -d '{"url":"http://127.0.0.1:18333","events":["new-message"]}'`
    (Use the configured webhook port from `.env` if set.)
    Report success or failure of webhook registration.
 7. Confirm, then show the no-args status so the user sees where they stand.
