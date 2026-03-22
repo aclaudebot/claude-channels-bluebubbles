@@ -1,0 +1,32 @@
+{
+  "name": "claude-channel-bluebubbles",
+  "version": "0.0.1",
+  "description": "BlueBubbles channel for Claude Code — messaging bridge with built-in access control.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": "./server.ts",
+  "author": {
+    "name": "Contributors",
+    "url": "https://github.com/aclaudebot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aclaudebot/claude-channels-bluebubbles.git"
+  },
+  "homepage": "https://github.com/aclaudebot/claude-channels-bluebubbles",
+  "keywords": [
+    "claude-code",
+    "mcp",
+    "bluebubbles",
+    "messaging",
+    "messaging",
+    "channel",
+    "plugin"
+  ],
+  "scripts": {
+    "start": "bun install --no-summary && bun server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

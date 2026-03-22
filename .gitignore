@@ -1,0 +1,12 @@
+node_modules/
+
+# Local state (per-user, never committed)
+.env
+access.json
+access.json.tmp
+access.json.corrupt-*
+approved/
+inbox/
+
+# Local dev config
+.claude/

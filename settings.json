@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__bluebubbles__reply",
+      "mcp__bluebubbles__react"
+    ]
+  }
+}
