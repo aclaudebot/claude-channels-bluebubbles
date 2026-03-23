@@ -740,6 +740,18 @@ mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ['addresses', 'text'],
       },
     },
+    {
+      name: 'rename_chat',
+      description: 'Rename a group chat. Use when the user wants to change the display name of a group conversation.',
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          chat_guid: { type: 'string', description: 'Chat GUID of the group to rename' },
+          name: { type: 'string', description: 'New display name for the group chat' },
+        },
+        required: ['chat_guid', 'name'],
+      },
+    },
   ],
 }))
 
@@ -1231,6 +1243,7 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
           throw new Error('At least one address is required')
         }
 
+        // All recipients must already be in the allowlist
         assertAllowedAddresses(addresses)
 
         const res = await bbPost('/api/v1/chat/new', {
@@ -1249,7 +1262,43 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
         const result = await res.json() as Record<string, unknown>
         const data = asRecord(result.data)
         const chatGuid = readStr(data, 'guid') ?? 'unknown'
+
+        // For group chats, auto-add the group to access so replies are delivered
+        if (addresses.length > 1 && chatGuid.includes(';+;')) {
+          const access = loadAccess()
+          if (!(chatGuid in access.groups)) {
+            access.groups[chatGuid] = {
+              requireMention: false,
+              allowFrom: addresses.map(normalizeHandle),
+            }
+            saveAccess(access)
+          }
+        }
+
         return { content: [{ type: 'text', text: `Chat created: ${chatGuid}` }] }
+      }
+
+      // ---------------------------------------------------------------
+      // rename_chat
+      // ---------------------------------------------------------------
+      case 'rename_chat': {
+        const chatGuid = args.chat_guid as string
+        const name = args.name as string
+
+        assertAllowedChat(chatGuid)
+
+        const res = await bbFetch(buildApiUrl(`/api/v1/chat/${encodeURIComponent(chatGuid)}`), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName: name }),
+        })
+
+        if (!res.ok) {
+          const err = await res.text()
+          throw new Error(`rename_chat failed: ${err}`)
+        }
+
+        return { content: [{ type: 'text', text: `Renamed chat to "${name}"` }] }
       }
 
       default:
