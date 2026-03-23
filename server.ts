@@ -1594,7 +1594,38 @@ async function handleWebhookMessage(msg: NormalizedMessage): Promise<void> {
     }
   }
 
-  const content = msg.text || (msg.attachments.length > 0 ? '(attachment)' : '(empty message)')
+  const messageBody = msg.text || (msg.attachments.length > 0 ? '(attachment)' : '(empty message)')
+
+  // If this is a reply, fetch thread context
+  let content = messageBody
+  if (msg.threadOriginatorGuid) {
+    try {
+      const historyRes = await bbGet(
+        `/api/v1/chat/${encodeURIComponent(msg.chatGuid)}/message?limit=10&sort=DESC&with=attachment`,
+        10_000,
+      )
+      if (historyRes.ok) {
+        const historyResult = await historyRes.json() as Record<string, unknown>
+        const messages = (historyResult.data ?? []) as Array<Record<string, unknown>>
+        // Reverse to chronological order, exclude the current message
+        const thread = [...messages]
+          .reverse()
+          .filter(m => readStr(m, 'guid') !== msg.guid)
+          .map(m => {
+            const handle = asRecord(m.handle)
+            const sender = m.isFromMe ? 'me' : (readStr(handle, 'address') ?? 'unknown')
+            const text = readStr(m, 'text') ?? ''
+            return `${sender}: ${text}`
+          })
+          .filter(line => line.endsWith(': ') === false) // skip empty
+        if (thread.length > 0) {
+          content = `[Recent thread context]\n${thread.join('\n')}\n\n[Reply message]\n${messageBody}`
+        }
+      }
+    } catch {
+      // If fetching context fails, just deliver the message as-is
+    }
+  }
 
   void mcp.notification({
     method: 'notifications/claude/channel',
