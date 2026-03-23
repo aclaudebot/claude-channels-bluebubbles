@@ -502,6 +502,16 @@ function assertAllowedChat(chatGuid: string): void {
   throw new Error(`chat ${chatGuid} is not allowlisted`)
 }
 
+function assertAllowedAddresses(addresses: string[]): void {
+  const access = loadAccess()
+  for (const addr of addresses) {
+    const normalized = normalizeHandle(addr)
+    if (!access.allowFrom.some(id => normalizeHandle(id) === normalized)) {
+      throw new Error(`address ${addr} is not allowlisted`)
+    }
+  }
+}
+
 function extractHandleFromChatGuid(chatGuid: string): string | null {
   // Format: iMessage;-;+1234567890 or iMessage;+;chat123456
   const parts = chatGuid.split(';')
@@ -984,6 +994,8 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
         const after = args.after as string | undefined
         const before = args.before as string | undefined
 
+        if (chatGuid) assertAllowedChat(chatGuid)
+
         const body: Record<string, unknown> = {
           with: ['chat', 'attachment'],
           limit,
@@ -1082,6 +1094,8 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
         const limit = Math.min(Math.max(1, (args.limit as number) || 25), 100)
         const after = args.after as string | undefined
         const before = args.before as string | undefined
+
+        assertAllowedChat(chatGuid)
 
         let path = `/api/v1/chat/${encodeURIComponent(chatGuid)}/message?limit=${limit}&sort=DESC&with=attachment`
         if (after) path += `&after=${new Date(after).getTime()}`
@@ -1216,6 +1230,8 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
         if (!addresses || addresses.length === 0) {
           throw new Error('At least one address is required')
         }
+
+        assertAllowedAddresses(addresses)
 
         const res = await bbPost('/api/v1/chat/new', {
           addresses,
