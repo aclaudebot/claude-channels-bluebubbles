@@ -102,6 +102,13 @@ Quick reference: sender IDs are **phone numbers** (E.164 format like `+155555512
 | `download_attachment` | Download an attachment by GUID and return the local file path. |
 | `send_attachment` | Send a local file as an attachment. Max 50 MB. |
 | `mark_read` | Send a read receipt for a chat (requires Private API). |
+| `search_messages` | Search past messages by text, optionally filtered by chat, date range. |
+| `lookup_contact` | Look up contacts by phone number or email to get names and details. Omit addresses to list all. |
+| `get_chat_history` | Fetch recent messages from a chat for conversation context. |
+| `schedule_message` | Schedule a message to be sent at a future time. |
+| `list_scheduled_messages` | List all pending scheduled messages. |
+| `cancel_scheduled_message` | Cancel a scheduled message by ID. |
+| `start_chat` | Start a new conversation with one or more recipients (phone or email). |
 
 ## Message effects
 
@@ -123,6 +130,20 @@ The six tapbacks with their accepted aliases:
 | `question` | `?`, `questioned` |
 
 Inbound tapback reactions from others are forwarded to Claude as events.
+
+## Message search and history
+
+Claude can search past messages with `search_messages` and fetch recent conversation context with `get_chat_history`. Use `lookup_contact` to resolve phone numbers and email addresses to contact names.
+
+## Scheduled messages
+
+Schedule messages to be sent at a future time with `schedule_message`. Review pending scheduled messages with `list_scheduled_messages` and cancel them with `cancel_scheduled_message`.
+
+Example: "remind them about the meeting tomorrow at 9am" will schedule a message for the next day.
+
+## Starting new conversations
+
+Use `start_chat` to initiate a conversation with someone new. Provide phone numbers in E.164 format (`+15555551234`) or email addresses. By default uses iMessage; pass `service: "SMS"` to send via SMS.
 
 ## Attachments
 

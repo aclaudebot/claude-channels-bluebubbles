@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "mcp__bluebubbles__reply",
-      "mcp__bluebubbles__react"
+      "mcp__bluebubbles__react",
+      "mcp__bluebubbles__search_messages",
+      "mcp__bluebubbles__lookup_contact",
+      "mcp__bluebubbles__get_chat_history",
+      "mcp__bluebubbles__list_scheduled_messages"
     ]
   }
 }
