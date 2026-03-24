@@ -1170,7 +1170,7 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
             message: text,
             method: 'private-api',
           },
-          scheduledFor: scheduledDate.toISOString(),
+          scheduledFor: scheduledDate.getTime(),
           schedule: { type: 'once' },
         })
 
